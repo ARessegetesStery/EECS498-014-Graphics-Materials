@@ -16,6 +16,9 @@ void Rasterizer::DrawPixel(uint32_t x, uint32_t y, Triangle trig, AntiAliasConfi
 
     }
 
+    // if the pixel is inside the triangle
+    image.Set(x, y, color);
+
     return;
 }
 
@@ -33,7 +36,9 @@ void Rasterizer::SetView()
     glm::vec3 cameraPos = camera.pos;
     glm::vec3 cameraLookAt = camera.lookAt;
 
+    // TODO change this line to the correct view matrix
     this->view = glm::mat4(1.);
+
     return;
 }
 
@@ -48,6 +53,8 @@ void Rasterizer::SetProjection()
     float width = this->loader.GetWidth();
     float height = this->loader.GetHeight();
     
+    // TODO change this line to the correct projection matrix
+    this->projection = glm::mat4(1.);
 
     return;
 }
@@ -57,6 +64,9 @@ void Rasterizer::SetScreenSpace()
 {
     float width = this->loader.GetWidth();
     float height = this->loader.GetHeight();
+
+    // TODO change this line to the correct screenspace matrix
+    this->screenspace = glm::mat4(1.);
 
     return;
 }
@@ -73,11 +83,19 @@ float Rasterizer::zBufferDefault = float();
 // TODO
 void Rasterizer::UpdateDepthAtPixel(uint32_t x, uint32_t y, Triangle original, Triangle transformed, ImageGrey& ZBuffer)
 {
+
+    float result;
+    ZBuffer.Set(x, y, result);
+
     return;
 }
 
 // TODO
 void Rasterizer::ShadeAtPixel(uint32_t x, uint32_t y, Triangle original, Triangle transformed, Image& image)
 {
+
+    Color result;
+    image.Set(x, y, result);
+
     return;
 }
