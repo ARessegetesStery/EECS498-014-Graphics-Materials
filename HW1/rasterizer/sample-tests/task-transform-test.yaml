@@ -1,0 +1,23 @@
+task: transform-test
+antialias: SSAA
+samples: 16
+resolution:
+    width: 800
+    height: 800
+obj: trig
+output: output
+camera: 
+    pos: [0.0, 0.0, 5.0]
+    lookAt: [0.0, 0.0, 0.0]
+    up: [0.0, 1.0, 0.0]
+    width: 100.0
+    height: 100.0
+    nearClip: 0.1
+    farClip: 100.0
+transforms:
+    - 
+        rotation: [0.886, 0.0897, 0.3455, 0.2958]
+        translation: [0.0, 0.0, 0.0]
+        scale: [1.0, 1.0, 1.0]
+input: [0.0, 0.0, 0.0]
+expected: [400.0, 400.0, -0.962, 1.0]
