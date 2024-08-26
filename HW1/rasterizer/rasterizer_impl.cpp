@@ -1,22 +1,39 @@
-#include "image.hpp"
-#include "rasterizer.hpp"
 #include <cstdint>
+
+#include "image.hpp"
+#include "loader.hpp"
+#include "rasterizer.hpp"
 
 // TODO
 void Rasterizer::DrawPixel(uint32_t x, uint32_t y, Triangle trig, AntiAliasConfig config, uint32_t spp, Image& image, Color color)
 {
+    if (config == AntiAliasConfig::NONE)            // if anti-aliasing is off
+    {
+
+    }
+    else if (config == AntiAliasConfig::SSAA)       // if anti-aliasing is on
+    {
+
+    }
+
     return;
 }
 
 // TODO
 void Rasterizer::AddModel(MeshTransform transform, glm::mat4 rotation)
 {
+    /* model.push_back( model transformation constructed from translation, rotation and scale );*/
     return;
 }
 
 // TODO
 void Rasterizer::SetView()
 {
+    const Camera& camera = this->loader.GetCamera();
+    glm::vec3 cameraPos = camera.pos;
+    glm::vec3 cameraLookAt = camera.lookAt;
+
+    this->view = glm::mat4(1.);
     return;
 }
 
@@ -29,6 +46,9 @@ void Rasterizer::SetProjection()
 // TODO
 void Rasterizer::SetScreenSpace()
 {
+    float width = this->loader.GetWidth();
+    float height = this->loader.GetHeight();
+
     return;
 }
 
