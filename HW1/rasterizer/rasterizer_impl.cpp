@@ -40,6 +40,15 @@ void Rasterizer::SetView()
 // TODO
 void Rasterizer::SetProjection()
 {
+    const Camera& camera = this->loader.GetCamera();
+
+    float nearClip = camera.nearClip;                   // near clipping distance, strictly positive
+    float farClip = camera.farClip;                     // far clipping distance, strictly positive
+    
+    float width = this->loader.GetWidth();
+    float height = this->loader.GetHeight();
+    
+
     return;
 }
 
