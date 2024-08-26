@@ -1,0 +1,32 @@
+task: shading
+antialias: SSAA
+samples: 16
+resolution:
+    width: 800
+    height: 800
+obj: cube
+output: output
+camera: 
+    pos: [0.0, 1.0, 2.0]
+    lookAt: [0.0, 0.0, 0.0]
+    up: [0.0, 2.0, -1.0]
+    width: 0.2
+    height: 0.2
+    nearClip: 0.1
+    farClip: 100.0
+transforms:
+    - 
+        rotation: [0.886, 0.0897, 0.3455, 0.2958]
+        translation: [0.0, 0.0, 0.0]
+        scale: [1.0, 1.0, 1.0]
+exponent: 4.0
+ambient: [10, 10, 10]
+lights:
+    -
+        pos: [0.0, 1.0, 2.0]
+        intensity: 2.0
+        color: [255, 255, 255]
+    -
+        pos: [4.0, 0.0, 0.0]
+        intensity: 8.0
+        color: [179, 87, 181]

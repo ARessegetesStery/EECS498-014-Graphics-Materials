@@ -1,0 +1,8 @@
+task: triangle
+antialias: SSAA
+samples: 16
+resolution:
+    width: 800
+    height: 800
+obj: trig
+output: output

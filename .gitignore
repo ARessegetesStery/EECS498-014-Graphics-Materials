@@ -315,3 +315,4 @@ TSWLatexianTemp*
 # config
 *.yaml
 *.yml
+!HW1/rasterizer/sample-tests/*.yaml
