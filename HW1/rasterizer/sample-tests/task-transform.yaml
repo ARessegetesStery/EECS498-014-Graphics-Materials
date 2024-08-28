@@ -17,7 +17,7 @@ camera:
 transforms:
     - 
         rotation: [0.886, 0.0897, 0.3455, 0.2958]
-        translation: [0.0, 1.0, 0.0]
+        translation: [0.0, 0.0, 0.0]
         scale: [1.0, 1.0, 1.0]
     - 
         rotation: [-0.374, 0.843, 0.094, 0.375]
