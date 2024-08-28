@@ -32,9 +32,10 @@ void PrintTaskTransformTest(const glm::vec3 input, const glm::vec4 output, const
     std::string sephead = "===============Task: Transform Test===============\n";
     std::string sep = "==================================================\n";
     glm::vec4 expected4(expected, 1);
+    glm::vec4 normalizedOutput = output / output.w;
     std::string msg = sephead + 
         "Input: " + ToStr(input) + "\n" +
-        "Output: " + ToStr(output) + "\n" +
+        "Output: " + ToStr(normalizedOutput) + "\n" +
         "Expected: " + ToStr(expected4) + "\n"
         + sep;
     std::cout << msg;
