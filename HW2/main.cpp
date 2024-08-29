@@ -44,9 +44,8 @@ int main() {
     using namespace std::chrono;
     auto startTime = high_resolution_clock::now();
 
-    std::string path(MODEL_PATH);
     Scene scene;
-    scene.addObjects(path + "cornellBox/CornellBox-Original.obj", path + "cornellBox/");
+    scene.addObjects(OBJ_PATH, MTL_SEARCH_DIR);
     scene.constructBVH();
     
     auto timeAfterVBVH = high_resolution_clock::now();
@@ -56,6 +55,10 @@ int main() {
     Vec3 cameraPos = {
         0.0f, 1.0f, 4.0f
     };
+
+    if constexpr(!DEBUG) {
+        std::cout << "Debug mode disabled. Progress output will be in brief." <<  '\n';
+    }
 
     // x: right
     // y: up
@@ -85,7 +88,7 @@ int main() {
     auto finishTime = high_resolution_clock::now();
     std::cout << "Rendering time in seconds: " << duration_cast<seconds>(finishTime - timeAfterVBVH).count() << '\n';
 
-    std::filesystem::path outPath = std::filesystem::absolute("./binary.ppm");
+    std::filesystem::path outPath = std::filesystem::absolute(OUTPUT_PATH);
 
     FILE* fp = fopen(outPath.string().c_str(), "wb");
     (void)fprintf(fp, "P6\n%d %d\n255\n", width, height);

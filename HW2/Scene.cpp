@@ -8,10 +8,10 @@
 
 tinyobj::ObjReader Scene::reader {};
 
-void Scene::addObjects(const std::string& modelPath, const std::string& searchPath) {
+void Scene::addObjects(std::string_view modelPath, std::string_view searchPath) {
     tinyobj::ObjReaderConfig config;
     config.mtl_search_path = searchPath;
-    if (!reader.ParseFromFile(modelPath, config)) {
+    if (!reader.ParseFromFile(std::string(modelPath), config)) {
         if (!reader.Error().empty()) {
             std::cerr << "TinyObjReader: " << reader.Error();
             std::filesystem::path relative(modelPath);
@@ -90,10 +90,11 @@ Intersection Scene::sampleLight() const {
     return lights[0]->sample();
 }
 
-Vec3 Scene::trace(const Ray &ray, int bounces, bool discardEmission) {
+Vec3 Scene::trace(const Ray &ray, int bouncesLeft, bool discardEmission) {
     if constexpr(DEBUG) {
         assert (ray.isNormalized());
     }
+    if (bouncesLeft < 0) return {};
     
     return {};
 }

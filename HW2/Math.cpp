@@ -1,4 +1,6 @@
 #include "Math.h"
+#include "Config.h"
+
 #include <algorithm>
 #include <cassert>
 
@@ -108,7 +110,7 @@ float Vec3::dot(const Vec3& v) const {
     return x * v.x + y * v.y + z * v.z;
 }
 
-std::mt19937 Random::generator(42);
+std::mt19937 Random::generator(SEED);
 std::uniform_real_distribution<float> Random::distribution {0.0f, 1.0f};
 
 float Random::randUniformFloat() {
@@ -141,8 +143,8 @@ Vec3 Random::randomHemisphereDirection(const Vec3 &normal) {
         Uniformly generate a direction on the hemisphere oriented towards the positive y axis,
             represented by sphere coordinates
     */
-    float azimuth = 2.0f * PI * randUniformFloat();
-    float elevation = acos(randUniformFloat());
+    float azimuth = 0.0f;
+    float elevation = 0.0f;
 
     // Convert spherical coordinates to Cartesian
     float x = cos(azimuth) * sin(elevation);

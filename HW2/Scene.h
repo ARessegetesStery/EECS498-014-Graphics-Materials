@@ -15,7 +15,7 @@ public:
 
     float lightArea = 0;
 
-    void addObjects(const std::string& modelPath, const std::string& searchPath);
+    void addObjects(std::string_view modelPath, std::string_view searchPath);
     void constructBVH();
     Intersection getIntersection(const Ray& ray);
     /**
@@ -23,6 +23,6 @@ public:
      * @todo add support for multiple light objects
     */
     Intersection sampleLight() const;
-    Vec3 trace(const Ray& ray, int bounces = 2, bool discardEmission = false);
+    Vec3 trace(const Ray& ray, int bouncesLeft = 2, bool discardEmission = false);
     ~Scene();
 };
