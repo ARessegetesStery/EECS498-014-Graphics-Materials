@@ -101,7 +101,7 @@ public:
         }
 
         return "Type: " + typeStr + "\n" +
-            "Anti-alias: " + AAStr + ((this->AASpp == 0) ? "" : " with spp " + ToStr(this->AASpp)) + "\n" +
+            "Anti-alias: " + AAStr + ((this->AAConfig == AntiAliasConfig::NONE) ? "" : " with spp " + ToStr(this->AASpp)) + "\n" +
             "Resolution: " + ToStr(this->width) + "x" + ToStr(this->height) + "\n" +
             "Model: " + this->modelName + "\n" +
             "Output: " + this->outputName + "\n" + 
@@ -147,8 +147,8 @@ private:
     uint32_t height;
     std::string modelName;
     std::string outputName;
-    AntiAliasConfig AAConfig;
-    uint32_t AASpp;
+    AntiAliasConfig AAConfig = AntiAliasConfig::NONE;
+    uint32_t AASpp = 0;
 
     std::optional<glm::vec3> expected;
     std::optional<glm::vec3> input;
