@@ -5,7 +5,7 @@
 #include "rasterizer.hpp"
 
 
-static inline bool inside(glm::vec3 &bc, Triangle &trig){
+static inline bool inside(glm::vec3 bc, Triangle trig){
     return (0 <= bc.x && bc.x <= 1) && (0 <= bc.y && bc.y <= 1) && (bc.z >= 0);
 }
 
@@ -28,18 +28,14 @@ void Rasterizer::DrawPixel(uint32_t x, uint32_t y, Triangle trig, AntiAliasConfi
             for(int j=0;j<s;j++){
                 float sy = -0.5 + ((j+1) + 0.5)/s;
 
-                auto sbc = this->BarycentricCoordinate(glm::vec2(x + sx, y+sy), trig);
-                count += inside(sbc, trig);
+                count += inside(this->BarycentricCoordinate(glm::vec2(x + sx, y+sy), trig), trig);
             }
         }
-
         color = ((float)count/spp) * color;
     }
 
     // if the pixel is inside the triangle
     image.Set(x, y, color);
-
-
     return;
 }
 
@@ -58,10 +54,19 @@ void Rasterizer::SetView()
     glm::vec3 cameraLookAt = camera.lookAt;
 
     // TODO change this line to the correct view matrix
+    glm::mat4 T(1.);
+    T[3] = glm::vec4(-cameraPos, 1);
 
+    glm::vec3 t = glm::normalize(camera.up);
+    glm::vec3 g = glm::normalize(cameraLookAt - cameraPos);
+    glm::vec3 r = glm::normalize(glm::cross(g, t));
 
-    this->view = glm::mat4();
+    glm::mat4 R(1.);
+    R[0] = glm::vec4(r, 0);
+    R[1] = glm::vec4(t, 0);
+    R[2] = glm::vec4(-g, 0);
 
+    this->view = glm::transpose(R) * T;
     return;
 }
 
@@ -72,11 +77,13 @@ void Rasterizer::SetProjection()
 
     float nearClip = camera.nearClip;                   // near clipping distance, strictly positive
     float farClip = camera.farClip;                     // far clipping distance, strictly positive
-    
+
     float width = this->loader.GetWidth();
     float height = this->loader.GetHeight();
-    
+
     // TODO change this line to the correct projection matrix
+
+
     this->projection = glm::mat4(1.);
 
     return;
