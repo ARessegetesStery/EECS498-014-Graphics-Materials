@@ -4,20 +4,41 @@
 #include "loader.hpp"
 #include "rasterizer.hpp"
 
+
+static inline bool inside(glm::vec3 &bc, Triangle &trig){
+    return (0 <= bc.x && bc.x <= 1) && (0 <= bc.y && bc.y <= 1) && (bc.z >= 0);
+}
+
 // TODO
 void Rasterizer::DrawPixel(uint32_t x, uint32_t y, Triangle trig, AntiAliasConfig config, uint32_t spp, Image& image, Color color)
 {
+    glm::vec3 bc = this->BarycentricCoordinate(glm::vec2(x + .5, y + .5), trig);
+
     if (config == AntiAliasConfig::NONE)            // if anti-aliasing is off
     {
-
+        color = inside(bc, trig) ? color : Color::Black;
     }
     else if (config == AntiAliasConfig::SSAA)       // if anti-aliasing is on
     {
+        int count = 0;
+        float s = glm::sqrt(spp);
 
+        for(int i=0;i<s;i++){
+            float sx = -0.5 + ((i+1) + 0.5)/s;
+            for(int j=0;j<s;j++){
+                float sy = -0.5 + ((j+1) + 0.5)/s;
+
+                auto sbc = this->BarycentricCoordinate(glm::vec2(x + sx, y+sy), trig);
+                count += inside(sbc, trig);
+            }
+        }
+
+        color = ((float)count/spp) * color;
     }
 
     // if the pixel is inside the triangle
     image.Set(x, y, color);
+
 
     return;
 }
@@ -37,7 +58,9 @@ void Rasterizer::SetView()
     glm::vec3 cameraLookAt = camera.lookAt;
 
     // TODO change this line to the correct view matrix
-    this->view = glm::mat4(1.);
+
+
+    this->view = glm::mat4();
 
     return;
 }
@@ -74,7 +97,19 @@ void Rasterizer::SetScreenSpace()
 // TODO
 glm::vec3 Rasterizer::BarycentricCoordinate(glm::vec2 pos, Triangle trig)
 {
-    return glm::vec3();
+    float Xa = trig.pos[0].x, Ya = trig.pos[0].y;
+    float Xb = trig.pos[1].x, Yb = trig.pos[1].y;
+    float Xc = trig.pos[2].x, Yc = trig.pos[2].y;
+    float X = pos.x, Y = pos.y;
+
+    float alpha = (-(X-Xb)*(Yc-Yb) + (Y-Yb)*(Xc-Xb))/(-(Xa-Xb)*(Yc-Yb) + (Ya-Yb)*(Xc-Xb));
+    float beta = (-(X-Xc)*(Ya-Yc) + (Y-Yc)*(Xa-Xc))/(-(Xb-Xc)*(Ya-Yc) + (Yb-Yc)*(Xa-Xc));
+
+    return glm::vec3(
+        alpha,
+        beta,
+        1 - alpha - beta
+    );
 }
 
 // TODO

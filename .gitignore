@@ -311,6 +311,8 @@ TSWLatexianTemp*
 *.png
 !HW1/spec/img/*.png
 !HW2/spec/images/*.png
+*.dSYM
+HW1/rasterizer/rasterizer
 
 # config
 *.yaml
