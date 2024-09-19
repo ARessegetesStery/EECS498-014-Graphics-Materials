@@ -145,7 +145,7 @@ ImageBuffer<T>& ImageBuffer<T>::operator= (const ImageBuffer<T>& image)
     this->canvas = new T[image.width * image.height];
     for (unsigned int i = 0; i != image.width * image.height; ++i)
         this->canvas[i] = image.canvas[i];
-    this->filename = filename;
+    this->filename = image.filename;
 
     return *this;
 }

@@ -75,6 +75,7 @@ void Rasterizer::SetView()
     const Camera& camera = this->loader.GetCamera();
     glm::vec3 cameraPos = camera.pos;
     glm::vec3 cameraLookAt = camera.lookAt;
+    glm::vec3 cameraUp = camera.up;
 
     // TODO change this line to the correct view matrix
     glm::mat4 T(1.);
@@ -100,10 +101,10 @@ void Rasterizer::SetProjection()
 
     float nearClip = camera.nearClip;                   // near clipping distance, strictly positive
     float farClip = camera.farClip;                     // far clipping distance, strictly positive
-
-    float width = this->loader.GetWidth();
-    float height = this->loader.GetHeight();
-
+    
+    float width = camera.width;
+    float height = camera.height;
+    
     // TODO change this line to the correct projection matrix
     this->projection = glm::mat4(1.);
     return;
