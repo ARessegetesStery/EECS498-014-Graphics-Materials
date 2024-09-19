@@ -23,7 +23,7 @@ Rasterizer::Rasterizer(Loader& loader) :
     view(glm::mat4(1.f)),  
     projection(glm::mat4(1.f)),  
     screenspace(glm::mat4(1.f)),
-    ZBuffer(loader.GetWidth(), loader.GetHeight())
+    ZBuffer(loader.GetWidth(), loader.GetHeight(), loader.GetOutputName())
 {   
     for (size_t i = 0; i != loader.GetHeight(); ++i)
         for (size_t j = 0; j != loader.GetWidth(); ++j)
