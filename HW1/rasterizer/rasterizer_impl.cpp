@@ -4,6 +4,9 @@
 #include "loader.hpp"
 #include "rasterizer.hpp"
 
+#include <iostream>
+#include "../thirdparty/glm/gtx/string_cast.hpp"
+
 
 static inline bool inside(glm::vec3 bc, Triangle trig){
     return (0 <= bc.x && bc.x <= 1) && (0 <= bc.y && bc.y <= 1) && (bc.z >= 0);
@@ -43,6 +46,15 @@ void Rasterizer::DrawPixel(uint32_t x, uint32_t y, Triangle trig, AntiAliasConfi
 void Rasterizer::AddModel(MeshTransform transform, glm::mat4 rotation)
 {
     /* model.push_back( model transformation constructed from translation, rotation and scale );*/
+    glm::mat4 S(1.);
+    S[0][0] = transform.scale.x;
+    S[1][1] = transform.scale.y;
+    S[2][2] = transform.scale.z;
+
+    glm::mat4 matrix = S * rotation;
+    matrix[3] = glm::vec4(transform.translation, 1.);
+
+    this->model.push_back(matrix);
     return;
 }
 
