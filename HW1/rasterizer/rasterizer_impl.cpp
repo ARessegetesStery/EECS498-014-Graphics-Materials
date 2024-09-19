@@ -8,18 +8,30 @@
 #include "../thirdparty/glm/gtx/string_cast.hpp"
 
 
-static inline bool inside(glm::vec3 bc, Triangle trig){
-    return (0 <= bc.x && bc.x <= 1) && (0 <= bc.y && bc.y <= 1) && (bc.z >= 0);
+static inline bool inside(uint32_t x, uint32_t y, Triangle trig){
+    glm::vec3 X(x, y, 0);
+    glm::vec3 A1(trig.pos[0].x, trig.pos[0].y, 0);
+    glm::vec3 A2(trig.pos[1].x, trig.pos[1].y, 0);
+    glm::vec3 A3(trig.pos[2].x, trig.pos[2].y, 0);
+
+    auto S1 = glm::cross(X - A1, A2 - A1);
+    auto S2 = glm::cross(X - A2, A3 - A2);
+    auto S3 = glm::cross(X - A3, A1 - A3);
+
+    bool all_pos = S1.z > 0 && S2.z > 0 && S3.z > 0;
+    bool all_neg = S1.z < 0 && S2.z < 0 && S3.z < 0;
+
+    return all_pos || all_neg;
 }
 
 // TODO
 void Rasterizer::DrawPixel(uint32_t x, uint32_t y, Triangle trig, AntiAliasConfig config, uint32_t spp, Image& image, Color color)
 {
-    glm::vec3 bc = this->BarycentricCoordinate(glm::vec2(x + .5, y + .5), trig);
-
     if (config == AntiAliasConfig::NONE)            // if anti-aliasing is off
     {
-        color = inside(bc, trig) ? color : Color::Black;
+        if(inside(x, y, trig)){
+            image.Set(x, y, color);
+        }
     }
     else if (config == AntiAliasConfig::SSAA)       // if anti-aliasing is on
     {
@@ -31,14 +43,13 @@ void Rasterizer::DrawPixel(uint32_t x, uint32_t y, Triangle trig, AntiAliasConfi
             for(int j=0;j<s;j++){
                 float sy = -0.5 + ((j+1) + 0.5)/s;
 
-                count += inside(this->BarycentricCoordinate(glm::vec2(x + sx, y+sy), trig), trig);
+                count += inside(x + sx, y + sy, trig);
             }
         }
         color = ((float)count/spp) * color;
+        image.Set(x, y, color);
     }
 
-    // if the pixel is inside the triangle
-    image.Set(x, y, color);
     return;
 }
 
@@ -94,10 +105,7 @@ void Rasterizer::SetProjection()
     float height = this->loader.GetHeight();
 
     // TODO change this line to the correct projection matrix
-
-
     this->projection = glm::mat4(1.);
-
     return;
 }
 
@@ -109,7 +117,9 @@ void Rasterizer::SetScreenSpace()
 
     // TODO change this line to the correct screenspace matrix
     this->screenspace = glm::mat4(1.);
-
+    this->screenspace[0][0] = width/2.0;
+    this->screenspace[1][1] = width/2.0;
+    this->screenspace[3] = glm::vec4(width/2.0, height/2.0, 0, 1);
     return;
 }
 
