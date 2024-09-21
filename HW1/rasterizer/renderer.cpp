@@ -91,8 +91,12 @@ void Renderer::Render(int argc, char** argv) {
             auto& shapes = loader.GetShapes();
             auto& attribs = loader.GetAttribs();
 
-            if (loader.GetType() == TestType::SHADING_DEPTH || loader.GetType() == TestType::SHADING)
+            if (loader.GetType() == TestType::SHADING_DEPTH || loader.GetType() == TestType::SHADING){
                 rasterizer.InitZBuffer(rasterizer.ZBuffer);
+                if (loader.GetAntiAliasConfig() == AntiAliasConfig::MSAA){
+                    rasterizer.InitMSSAMask(rasterizer.MSAA_mask, loader.GetSpp());
+                }
+            }
 
             std::vector<Triangle> transformedTrigs;
             std::vector<Triangle> originalTrigs;

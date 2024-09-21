@@ -236,6 +236,11 @@ bool Loader::LoadYaml()
                 this->AAConfig = AntiAliasConfig::SSAA;
                 LOAD_DATA_FROM_YAML(this->AASpp, root, samples, uint32_t)
             }
+            else if (AAName == "MSAA")
+            {
+                this->AAConfig = AntiAliasConfig::SSAA;
+                LOAD_DATA_FROM_YAML(this->AASpp, root, samples, uint32_t)
+            }
         }
 
         // If the task is TRANSFORM_TEST, then load the input/expected

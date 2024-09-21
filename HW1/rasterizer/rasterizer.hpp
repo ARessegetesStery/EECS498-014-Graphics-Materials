@@ -5,6 +5,7 @@
 #include "image.hpp"
 #include "loader.hpp"
 #include <cstdint>
+#include <_types/_uint32_t.h>
 
 class Rasterizer
 {
@@ -19,6 +20,8 @@ public:
     // Add a model to the rasterizer. Provide rotation part of the transformation, and dispatch to the impl version
     void AddModel(MeshTransform transform);
 
+    // Initialize the MSAAMask with the default value specified in impl
+    void InitMSSAMask(ImageGrey& MSSAMask, uint32_t num_samples);
 
     // Initialize the ZBuffer with the default value specified in impl
     void InitZBuffer(ImageGrey& ZBuffer);
@@ -87,6 +90,16 @@ public:
     void UpdateDepthAtPixel(uint32_t x, uint32_t y, Triangle original, Triangle transformed, ImageGrey& ZBuffer);
 
     /**
+     * Update the depth information at a single pixel in the ZBuffer. This function will be called for every pixel in the bounding box of the triangle.
+     * @param x: x coordinate of the pixel
+     * @param y: y coordinate of the pixel
+     * @param original: the original triangle in the model space (before MVP transformation)
+     * @param transformed: the transformed triangle in the screen space (after MVP transformation)
+     * @param MSAAMask: the MSAAMask to update the coverage information in. See spec, or class `Image` in `image.hpp` for APIs of read/write operations
+     */
+    void UpdateMSAAAtPixel(uint32_t x, uint32_t y, Triangle original, Triangle transformed, ImageGrey& MSAAMask);
+    
+    /**
      * Shade the pixel at the given position, using Blinn-Phong shading model. This function will be called for every pixel in the bounding box of the triangle.
      * @param x: x coordinate of the pixel
      * @param y: y coordinate of the pixel
@@ -106,12 +119,15 @@ public:
 
     // Buffers
     ImageGrey ZBuffer;
+    ImageGrey MSAA_mask;
 
     // Configurations 
     /** 
      * The default value for the ZBuffer during initialization.
      */
     static float zBufferDefault;
+    static bool msaaMaskDefault;
+    std::vector<glm::vec2> msaaSamples;
 };
 
 #endif

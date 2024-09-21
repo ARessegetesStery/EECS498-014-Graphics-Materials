@@ -2,7 +2,9 @@
 
 #include "loader.hpp"
 #include <array>
+#include <cmath>
 #include <cstdint>
+#include <numbers>
 
 #include "../thirdparty/glm/gtx/quaternion.hpp"
 
@@ -60,6 +62,21 @@ void Rasterizer::AddModel(MeshTransform transform)
 {
     glm::mat4 rotation = glm::toMat4(transform.rotation);
     this->AddModel(transform, rotation);
+}
+
+void Rasterizer::InitMSSAMask(ImageGrey& MSSAMask, uint32_t num_samples)
+{
+    for (size_t i = 0; i != this->loader.GetHeight(); ++i)
+        for (size_t j = 0; j != this->loader.GetWidth(); ++j)
+            MSSAMask.Set(j, i, Rasterizer::msaaMaskDefault);
+    
+    for(uint32_t i = 0; i < num_samples; ++i){
+        msaaSamples.emplace_back(
+            std::cos(num_samples/(2*std::numbers::pi)) + std::cos(std::numbers::pi/4),
+            std::sin(num_samples/(2*std::numbers::pi)) + std::sin(std::numbers::pi/4)
+        );
+    }
+    msaaSamples.emplace_back(0.5F,0.5F);
 }
 
 void Rasterizer::InitZBuffer(ImageGrey& ZBuffer)

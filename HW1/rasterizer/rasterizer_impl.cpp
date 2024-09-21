@@ -179,13 +179,13 @@ glm::vec3 Rasterizer::BarycentricCoordinate(glm::vec2 pos, Triangle trig) {
 }
 
 // TODO
+bool Rasterizer::msaaMaskDefault = false;
 float Rasterizer::zBufferDefault = -1.0F;
 
 // TODO
 void Rasterizer::UpdateDepthAtPixel(uint32_t x, uint32_t y, Triangle original, Triangle transformed,
                                     ImageGrey& ZBuffer) {
-
-    glm::vec2 pos(static_cast<float>(x), static_cast<float>(y));
+    glm::vec2 pos(static_cast<float>(x)+0.5F, static_cast<float>(y)+0.5F);
     glm::vec3 bary_coord = BarycentricCoordinate(pos,transformed);
 
     if(bary_coord.x < 0 || bary_coord.y < 0 || bary_coord.z < 0){
@@ -197,12 +197,29 @@ void Rasterizer::UpdateDepthAtPixel(uint32_t x, uint32_t y, Triangle original, T
     }
 }
 
+void Rasterizer::UpdateMSAAAtPixel(uint32_t x, uint32_t y, Triangle original, Triangle transformed, ImageGrey& MSAAMask){
+    glm::vec3 bary_coord = BarycentricCoordinate(glm::vec2(static_cast<float>(x)+0.5F, static_cast<float>(y)+0.5F),transformed);
+    float inv_depth = bary_coord.x * (1/transformed.pos[0].z) + bary_coord.y * (1/transformed.pos[1].z) + bary_coord.z * (1/transformed.pos[2].z);
+    if(ZBuffer.Get(x, y) != 1/inv_depth){
+        return;
+    }
+
+     glm::vec3 pos(x,y,0);
+    uint32_t num_contained_samples = 0;
+    for(const auto& sample : msaaSamples){
+        num_contained_samples += sampleIsInsideTriangle(pos + glm::vec3(sample,0.0F), transformed) ? 1 : 0;
+    }
+    MSAAMask.Set(x, y, static_cast<float>(num_contained_samples)/static_cast<float>(msaaSamples.size()));
+}
+
 // TODO
 void Rasterizer::ShadeAtPixel(uint32_t x, uint32_t y, Triangle original, Triangle transformed, Image& image) {
+    if (loader.GetAntiAliasConfig() == AntiAliasConfig::MSAA && MSAA_mask.Get(x, y) == 0.0F ){
+        return;
+    }
 
-    glm::vec2 pos(static_cast<float>(x), static_cast<float>(y));
+    glm::vec2 pos(static_cast<float>(x)+0.5F, static_cast<float>(y)+0.5F);
     glm::vec3 bary_coord = BarycentricCoordinate(pos,transformed);
-
 
     float inv_depth = bary_coord.x * (1/transformed.pos[0].z) + bary_coord.y * (1/transformed.pos[1].z) + bary_coord.z * (1/transformed.pos[2].z);
     if(ZBuffer.Get(x, y) != 1/inv_depth){
@@ -225,6 +242,10 @@ void Rasterizer::ShadeAtPixel(uint32_t x, uint32_t y, Triangle original, Triangl
         result = result + diffuse + specular;
 
         // result = result + diffuse;
+    }
+
+    if(loader.GetAntiAliasConfig() == AntiAliasConfig::MSAA){
+        image.Set(x, y, *MSAA_mask.Get(x, y) * result);
     }
 
     image.Set(x, y, result);

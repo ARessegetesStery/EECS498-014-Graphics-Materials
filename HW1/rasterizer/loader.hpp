@@ -26,7 +26,7 @@ enum class TestType
 
 enum class AntiAliasConfig
 {
-    NONE, SSAA
+    NONE, SSAA, MSAA
 };
 
 std::string ToStr(glm::vec4 vec);
