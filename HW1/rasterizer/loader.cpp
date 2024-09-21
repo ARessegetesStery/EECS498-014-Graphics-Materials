@@ -97,9 +97,9 @@ void LoadQuat(const fkyaml::node& parent, std::string tag, glm::quat& quat)
 #define LOAD_QUAT_FROM_YAML(node, tag, vec)     LoadQuat(node, #tag, vec);
 
 Loader::Loader(std::string filename) : Loader() 
-    {
-        this->filename = filename;
-    }
+{
+    this->filename = filename;
+}
 
 bool Loader::Load()
 {

@@ -47,7 +47,7 @@ void Renderer::Render(int argc, char** argv) {
 
     if (success) {
         PrintTask(loader);
-        Image image(loader.GetWidth(), loader.GetHeight());
+        Image image(loader.GetWidth(), loader.GetHeight(), loader.GetOutputName());
 
         Rasterizer rasterizer(loader);
 

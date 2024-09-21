@@ -6,6 +6,18 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
+
+Vec3 Scene::trace(const Ray &ray, int bouncesLeft, bool discardEmission) {
+    if constexpr(DEBUG) {
+        assert (ray.isNormalized());
+    }
+    if (bouncesLeft < 0) return {};
+
+    // TODO...
+    
+    return {};
+}
+
 tinyobj::ObjReader Scene::reader {};
 
 void Scene::addObjects(std::string_view modelPath, std::string_view searchPath) {
@@ -88,15 +100,6 @@ Intersection Scene::sampleLight() const {
     assert (lightArea > 0.0f);
     Intersection inter;
     return lights[0]->sample();
-}
-
-Vec3 Scene::trace(const Ray &ray, int bouncesLeft, bool discardEmission) {
-    if constexpr(DEBUG) {
-        assert (ray.isNormalized());
-    }
-    if (bouncesLeft < 0) return {};
-    
-    return {};
 }
 
 Scene::~Scene() {

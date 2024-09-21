@@ -114,6 +114,7 @@ public:
     inline const uint32_t GetSpp() const { return this->AASpp; }
     inline const uint32_t GetWidth() const { return this->width; }
     inline const uint32_t GetHeight() const { return this->height; }
+    inline const std::string GetOutputName() const { return this->outputName; }
 
     inline const glm::vec3 GetTestInput() const 
     {
