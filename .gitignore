@@ -311,6 +311,7 @@ TSWLatexianTemp*
 *.png
 !HW1/spec/img/*.png
 !HW2/spec/images/*.png
+!HW4/*.png
 
 # config
 *.yaml
