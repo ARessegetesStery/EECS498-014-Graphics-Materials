@@ -311,7 +311,9 @@ TSWLatexianTemp*
 *.png
 !HW1/spec/img/*.png
 !HW2/spec/images/*.png
-!HW4/*.png
+!HW4/hw_gs/chair/train/*.png
+!HW4/hw_gs/chair/test/*.png
+!HW4/hw_gs/chair/val/*.png
 
 # config
 *.yaml
