@@ -1,0 +1,1 @@
+wget -O tiny_nerf_data.npz 'https://drive.google.com/uc?export=download&id=1gt6PXUo9DQgZUEhw-CZJHqr7l0uGO-db'
