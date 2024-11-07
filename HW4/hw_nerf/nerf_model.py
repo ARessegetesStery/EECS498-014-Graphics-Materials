@@ -41,7 +41,7 @@ def get_rays(H, W, focal, pose):
     # dirs = 
     
     # Step 2: Transform the direction vectors (dirs) from camera coordinates to world coordinates.
-    # This is done by multiplying direction vectors with the Transpose of the rotation part (first 3 columns and first three rows, top left 3x3 matrix) of the pose matrix.
+    # The provided pose is camera-to-world matrix. Please note the expected rays_d should have the shape of [N, 3], where N is the number of rays.
 
     # rays_d = 
 
@@ -83,7 +83,7 @@ def positional_encoder(p, L_embed=6):
         #############################################################################
         #                                   TODO: Task 2                            #
         #############################################################################
-
+        # hint: following the order of (sin, cos), like for fn in [torch.sin, torch.cos]:
 
         #############################################################################
         #                             END OF YOUR CODE                              #

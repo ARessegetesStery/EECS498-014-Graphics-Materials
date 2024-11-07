@@ -58,16 +58,17 @@ def train(rawData, model, optimizer, n_iters=3000):
         #                                   TODO: Task 5 A                          #
         #############################################################################
         # Perform training. Use mse loss for loss calculation and update the model parameter using the optimizer.
-        # Hint: focal is defined as a global variable in previous section
         # Compute the rays for the selected image.
         # Render the scene using the current model state.
+        # 
 
         # rays_o, rays_d = ...
         # rgb, depth = ...
 
-        # optimizer...
+        # optimizer... 
         # image_loss = ...
-        # ...
+        # image_loss.backward() # calculate the gradient w.s.t image_loss
+        # optimizer.step() # do update
 
         #############################################################################
         #                             END OF YOUR CODE                              #
@@ -145,7 +146,7 @@ def main():
         test_img_idx = test_img_idx_list[-1]
         rays_o, rays_d = get_rays(H, W, focal, poses[test_img_idx])
         #############################################################################
-        #                                   TODO: Task 5 B                          #
+        #                                   TODO: Task 4                            #
         #############################################################################
         # Render the scene using the current model state. You may want to use near = 2, far = 6, n_samples = 64 
         
@@ -183,7 +184,7 @@ def main():
             rays_o, rays_d = get_rays(H, W, focal, poses[test_img_idx])
 
             #############################################################################
-            #                                   TODO: Task 5                            #
+            #                                   TODO: Task 5 B                          #
             #############################################################################
             # Render the scene using the current model state. You may want to use near = 2, far = 6, n_samples = 64.
 
