@@ -1,0 +1,13 @@
+click
+requests
+tqdm
+pyspng
+ninja
+psutil  
+scipy
+legacy
+imageio-ffmpeg==0.4.3
+pandas
+opencv-python==4.8.1.78
+datasets
+# tensorflow
