@@ -1,0 +1,13 @@
+# Please strictly follow the version below
+numpy
+diffusers @ git+https://github.com/huggingface/diffusers@1994dbcb5e62bd8d0c60e5d5d6bf4b580653c74c
+numpy==1.26.0
+scipy
+safetensors==0.4.5
+pillow
+opencv-python
+imageio==2.31.3
+matplotlib==3.7.1
+huggingface_hub==0.24.6
+accelerate==0.34.2
+transformers==4.44.2

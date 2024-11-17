@@ -1,0 +1,13 @@
+*.parquet
+*.pyc
+training-runs/*
+*.zip
+*.json
+*.jsonl
+.vscode/launch.json
+*.png
+*.jpg
+*.pkl
+*.txt
+*.sh
+*.log

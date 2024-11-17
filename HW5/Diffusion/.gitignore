@@ -1,0 +1,11 @@
+
+*.png
+*.pyc
+*.json
+*.log
+
+!__asset__/*
+!__asset__/ffhq_fixed_samples/*
+
+SDS_*
+VSD_*
