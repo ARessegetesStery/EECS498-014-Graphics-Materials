@@ -31,17 +31,17 @@ IMG_EXTENSIONS = ['jpg', 'png', 'jpeg', 'bmp']
 root_path = os.path.abspath('.')
 sys.path.append(root_path)
 from utils.sds_vsd_utils import (
-            get_t_schedule, 
-            get_loss_weights, 
-            sds_vsd_grad_diffuser, 
-            phi_vsd_grad_diffuser, 
-            extract_lora_diffusers,
-            predict_noise0_diffuser,
-            update_curve,
-            get_images,
-            get_latents,
-            get_optimizer,
-        )
+                                    get_t_schedule, 
+                                    get_loss_weights, 
+                                    sds_vsd_grad_diffuser, 
+                                    phi_vsd_grad_diffuser, 
+                                    extract_lora_diffusers,
+                                    predict_noise0_diffuser,
+                                    update_curve,
+                                    get_images,
+                                    get_latents,
+                                    get_optimizer,
+                                )
 
 
 
@@ -89,7 +89,7 @@ def get_parser(**parser_kwargs):
     parser.add_argument('--batch_size', default=1, type=int, help='batch_size / overall number of particles')
     parser.add_argument('--particle_num_vsd', default=1, type=int, help='batch size for VSD training')
     parser.add_argument('--particle_num_phi', default=1, type=int, help='number of particles to train phi model')
-    parser.add_argument('--guidance_scale', default=7.5, type=float, help='Scale for classifier-free guidance')
+    parser.add_argument('--guidance_scale', default=None, type=float, help='Scale for classifier-free guidance')
     parser.add_argument('--cfg_phi', default=1., type=float, help='Scale for classifier-free guidance of phi model')
     ### optimizing
     parser.add_argument('--optimizer', type=str, default='adam', help='Optimizer')
@@ -122,8 +122,10 @@ def get_parser(**parser_kwargs):
         args.prompt = "a photograph of an astronaut riding a horse" 
         args.height = 512 
         args.width = 512 
-        args.batch_size = 1 
-        args.guidance_scale = 7.5
+        # args.batch_size = 1 
+        if args.guidance_scale is None:
+            args.guidance_scale = 7.5
+        print("args.guidance_scale is ", args.guidance_scale)
         args.log_progress = True 
         args.save_x0 = True 
 
@@ -143,8 +145,10 @@ def get_parser(**parser_kwargs):
         args.prompt = "a photograph of an astronaut riding a horse" 
         args.height = 512 
         args.width = 512 
-        args.batch_size = 1 
-        args.guidance_scale = 7.5 
+        # args.batch_size = 1 
+        if args.guidance_scale is None:
+            args.guidance_scale = 7.5
+        print("args.guidance_scale is ", args.guidance_scale)
         args.log_progress = True 
         args.save_x0 = True 
         args.save_phi_model = True
@@ -154,23 +158,15 @@ def get_parser(**parser_kwargs):
 
 
 
-
-
-    # create working directory
+    # Create working directory
     args.run_id = args.run_date + '_' + args.run_time
     args.store_dir = f'{args.store_dir}-{args.run_id}'
-    # args.store_dir = f'{args.store_dir}-{args.run_id}-{args.generation_mode}-lr_{args.lr}-cfg_{args.guidance_scale}-bs_{args.batch_size}-num_steps_{args.num_steps}-tschedule_{args.t_schedule}-loss_weight_{args.loss_weight_type}'
-    # args.store_dir = args.store_dir + f'_{args.phi_model}' if args.generation_mode == 'vsd' else args.store_dir
-    # if os.path.exists(store_dir):
-    #     shutil.rmtree(store_dir)
-    # os.makedirs(store_dir)
 
     os.makedirs(args.store_dir, exist_ok=True)
     assert args.generation_mode in ['t2i', 'sds', 'vsd']
     assert args.phi_model in ['lora', 'unet_simple']
-    # if args.init_img_path:
-    #     assert args.batch_size == 1
-    # for sds and t2i, use only args.batch_size
+
+    # For sds and t2i, use only args.batch_size
     if args.generation_mode in ['t2i', 'sds']:
         args.particle_num_vsd = args.batch_size
         args.particle_num_phi = args.batch_size
@@ -182,8 +178,8 @@ def get_parser(**parser_kwargs):
     if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
         torch.cuda.manual_seed_all(args.seed)  # for multi-GPU.
-    np.random.seed(args.seed)  # Numpy module.
-    random.seed(args.seed)  # Python random module.
+    np.random.seed(args.seed)   # Numpy module.
+    random.seed(args.seed)      # Python random module.
     torch.manual_seed(args.seed)
     return args
 
@@ -223,6 +219,7 @@ def main():
     for arg in vars(args):
         logger.info(f"\t{arg}: {getattr(args, arg)}")
     
+    
     #################################################################################
     #                         load model & diffusion scheduler                      #
     #################################################################################
@@ -254,48 +251,12 @@ def main():
     
     if args.generation_mode == 'vsd':
         if args.phi_model == 'lora':
-            # if args.lora_vprediction:
-            #     assert args.model_path == 'stabilityai/stable-diffusion-2-1-base'
-            #     vae_phi = AutoencoderKL.from_pretrained('stabilityai/stable-diffusion-2-1', subfolder="vae", torch_dtype=dtype).to(device)
-            #     unet_phi = UNet2DConditionModel.from_pretrained('stabilityai/stable-diffusion-2-1', subfolder="unet", torch_dtype=dtype).to(device)
-            #     vae_phi.requires_grad_(False)
-            #     unet_phi, unet_lora_layers = extract_lora_diffusers(unet_phi, device)
-            # else:  
             vae_phi = vae
             ### unet_phi is the same instance as unet that has been modified in-place
             unet_phi, unet_lora_layers = extract_lora_diffusers(unet, device)      
 
             phi_params = list(unet_lora_layers.parameters())
-            # if args.load_phi_model_path:
-            #     unet_phi.load_attn_procs(args.load_phi_model_path)
-            #     unet_phi = unet_phi.to(device)
-        # elif args.phi_model == 'unet_simple':
-        #     # initialize simple unet, same input/output as (pre-trained) unet
-        #     ### IMPORTANT: need the proper (wide) channel numbers
-        #     channels = 4 if args.rgb_as_latents else 3
-        #     unet_phi = UNet2DConditionModel(
-        #                                 sample_size=64,
-        #                                 in_channels=channels,
-        #                                 out_channels=channels,
-        #                                 layers_per_block=1,
-        #                                 block_out_channels=(64,128,256),
-        #                                 down_block_types=(
-        #                                     "CrossAttnDownBlock2D",
-        #                                     "CrossAttnDownBlock2D",
-        #                                     "DownBlock2D",
-        #                                 ),
-        #                                 up_block_types=(
-        #                                     "UpBlock2D",
-        #                                     "CrossAttnUpBlock2D",
-        #                                     "CrossAttnUpBlock2D",
-        #                                 ),
-        #                                 cross_attention_dim=unet.config.cross_attention_dim,
-        #                                 ).to(dtype)
-        #     if args.load_phi_model_path:
-        #         unet_phi = unet_phi.from_pretrained(args.load_phi_model_path)
-        #     unet_phi = unet_phi.to(device)
-        #     phi_params = list(unet_phi.parameters())
-        #     vae_phi = vae
+        
 
     elif args.generation_mode == 'sds':
         unet_phi = None
@@ -319,63 +280,28 @@ def main():
         text_embeddings = text_encoder(text_input.input_ids.to(device))[0]
     max_length = text_input.input_ids.shape[-1]
     uncond_input = tokenizer(
-        [args.n_prompt] * max(args.particle_num_vsd,args.particle_num_phi), padding="max_length", max_length=max_length, return_tensors="pt"
-    )
+                                [args.n_prompt] * max(args.particle_num_vsd, args.particle_num_phi), padding="max_length", max_length=max_length, return_tensors="pt"
+                            )
     with torch.no_grad():
         uncond_embeddings = text_encoder(uncond_input.input_ids.to(device))[0]
     text_embeddings_vsd = torch.cat([uncond_embeddings[:args.particle_num_vsd], text_embeddings[:args.particle_num_vsd]])
     text_embeddings_phi = torch.cat([uncond_embeddings[:args.particle_num_phi], text_embeddings[:args.particle_num_phi]])
     ### init particles
-    # if args.use_mlp_particle:
-    #     # use siren network
-    #     from model_utils import Siren
-    #     args.lr = 1e-4
-    #     print(f'for mlp_particle, set lr to {args.lr}')
-    #     out_features = 4 if args.rgb_as_latents else 3
-    #     particles = nn.ModuleList([Siren(2, hidden_features=256, hidden_layers=3, out_features=out_features, device=device) for _ in range(args.batch_size)])
-    # else:
-    # if args.init_img_path:
-    #     # load image
-    #     init_image = io.read_image(args.init_img_path).unsqueeze(0) / 255
-    #     init_image = init_image * 2 - 1   #[-1,1]
-    #     if args.rgb_as_latents:
-    #         particles = vae.config.scaling_factor * vae.encode(init_image.to(device)).latent_dist.sample()
-    #     # else:
-    #     #     particles = init_image.to(device)
-    # else:
     if args.rgb_as_latents:
         particles = torch.randn((args.batch_size, unet.config.in_channels, args.height // 8, args.width // 8))      # This branch
-    # else:
-    #     # gaussian in rgb space --> strange artifacts
-    #     particles = torch.randn((args.batch_size, 3, args.height, args.width))
-    #     args.lr = args.lr * 1   # need larger lr for rgb particles
-    #     # ## gaussian in latent space --> not better
-    #     # particles = torch.randn((args.batch_size, unet.in_channels, args.height // 8, args.width // 8)).to(device, dtype=dtype)
-    #     # particles = vae.decode(particles).sample
-
 
     particles = particles.to(device, dtype=dtype)
-    # if args.nerf_init and args.rgb_as_latents and not args.use_mlp_particle:
-    #     # current only support sds and experimental for only rgb_as_latents==True
-    #     assert args.generation_mode == 'sds'
-    #     with torch.no_grad():
-    #         noise_pred = predict_noise0_diffuser(unet, particles, text_embeddings_vsd, t=999, guidance_scale=7.5, scheduler=scheduler)
-    #     particles = scheduler.step(noise_pred, 999, particles).pred_original_sample
+
 
     #################################################################################
     #                           optimizer & lr schedule                             #
     #################################################################################
-    
     
     ### weight loss     Important !!!
     loss_weights = get_loss_weights(scheduler.betas, args)
 
 
     ### optimizer
-    # if args.use_mlp_particle:
-    #     # For a list of models, we want to optimize their parameters
-    #     particles_to_optimize = [param for mlp in particles for param in mlp.parameters() if param.requires_grad]
-    # else:
     # For a tensor, we can optimize the tensor directly
     particles.requires_grad = True
     particles_to_optimize = [particles]
@@ -408,59 +334,7 @@ def main():
     ######## t schedule #########
     chosen_ts = get_t_schedule(num_train_timesteps, args, loss_weights)
     pbar = tqdm(chosen_ts)
-    #################################################################################
-    #                                     MODE: T2I                                 #
-    #################################################################################
-    ### regular sd text to image generation
-    # if args.generation_mode == 't2i':
-    #     if args.phi_model == 'lora' and args.load_phi_model_path:
-    #         ### unet_phi is the same instance as unet that has been modified in-place
-    #         unet_phi, unet_lora_layers = extract_lora_diffusers(unet, device)
-    #         phi_params = list(unet_lora_layers.parameters())
-    #         unet_phi.load_attn_procs(args.load_phi_model_path)
-    #         unet = unet_phi.to(device)
-    #     step = 0
-    #     # get latent of all particles
-    #     assert args.use_mlp_particle == False
-    #     latents = get_latents(particles, vae, args.rgb_as_latents)
-    #     if args.half_inference:
-    #         latents = latents.half()
-    #         text_embeddings_vsd = text_embeddings_vsd.half()
-    #     for t in tqdm(scheduler.timesteps):
-    #         # expand the latents if we are doing classifier-free guidance to avoid doing two forward passes.
-    #         latent_model_input = torch.cat([latents] * 2)
-    #         latent_model_input = scheduler.scale_model_input(latent_model_input, t)
-    #         latent_noisy = latents
-    #         # predict the noise residual
-    #         with torch.no_grad():
-    #             noise_pred = unet(latent_model_input, t, encoder_hidden_states=text_embeddings_vsd).sample
-    #         # perform guidance
-    #         noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-    #         noise_pred = noise_pred_uncond + args.guidance_scale * (noise_pred_text - noise_pred_uncond)
-    #         # compute the previous noisy sample x_t -> x_t-1
-    #         latents = scheduler.step(noise_pred, t, latents).prev_sample
-    #         ######## Evaluation and log metric #########
-    #         if args.log_steps and (step % args.log_steps == 0 or step == (args.num_steps-1)):
-    #             # save current img_tensor
-    #             # scale and decode the image latents with vae
-    #             tmp_latents = 1 / vae.config.scaling_factor * latents.clone().detach()
-    #             if args.save_x0:
-    #                 # compute the predicted clean sample x_0
-    #                 pred_latents = scheduler.step(noise_pred, t, latent_noisy).pred_original_sample.to(dtype).clone().detach()
-    #             with torch.no_grad():
-    #                 if args.half_inference:
-    #                     tmp_latents = tmp_latents.half()
-    #                 image_ = vae.decode(tmp_latents).sample.to(torch.float32)
-    #                 if args.save_x0:
-    #                     if args.half_inference:
-    #                         pred_latents = pred_latents.half()
-    #                     image_x0 = vae.decode(pred_latents / vae.config.scaling_factor).sample.to(torch.float32)
-    #                     image = torch.cat((image_,image_x0), dim=2)
-    #                 else:
-    #                     image = image_
-    #             if args.log_progress:
-    #                 image_progress.append((image/2+0.5).clamp(0, 1))
-    #         step += 1
+    
 
     #################################################################################
     #                                 MODE: SDS | VSD                               #
@@ -472,14 +346,17 @@ def main():
             # get latent of all particles
             latents = get_latents(particles, vae, args.rgb_as_latents, use_mlp_particle=args.use_mlp_particle)
             t = torch.tensor([chosen_t]).to(device)
+
             ######## q sample #########
             # random sample particle_num_vsd particles from latents
             indices = torch.randperm(latents.size(0))
-            latents_vsd = latents[indices[:args.particle_num_vsd]]      # Be Careful here, for multi VSD particles, particle_num_vsd > 1
-            noise = torch.randn_like(latents_vsd)
-            noisy_latents = scheduler.add_noise(latents_vsd, noise, t)
+            latents_sd = latents[indices[:args.particle_num_vsd]]      # Be Careful here, for multi VSD particles, particle_num_vsd > 1
+            noise = torch.randn_like(latents_sd)
+            noisy_latents = scheduler.add_noise(latents_sd, noise, t)
+
             ######## Do the gradient for latents!!! #########
             optimizer.zero_grad()
+
 
             # Predict the noise
             grad_, noise_pred, noise_pred_phi = sds_vsd_grad_diffuser(unet, noisy_latents, noise, text_embeddings_vsd, t, \
@@ -492,7 +369,8 @@ def main():
 
             ##################################### TODO #1: Code starts here #########################################
             # First, finish TODO in utils/sds_vsd_utils.py
-            # With grad_, implement the rest of Formula (12) to obtain the gradient of L_SDS (In VSD, this is L_VSD)
+            # With grad_, implement the rest of Formula (16) to obtain the gradient of L_SDS (In VSD, this is L_VSD)
+
             # Multiply grad_ with loss_weights at the timestep t (Hint: use breakpoint to check loss_weights data structure)
             grad_ = None
 
@@ -501,8 +379,8 @@ def main():
 
             # Now, what you get is only a Gradient. We need to convert to loss.
             # Formula: d(loss)/d(latents) = latents - target = latents - (latents - grad) = grad
-            target = (latents_vsd - grad_).detach()
-            loss = 0.5 * F.mse_loss(latents_vsd, target, reduction="mean") / args.batch_size        # batch_size should be 1
+            target = (latents_sd - grad_).detach()
+            loss = 0.5 * F.mse_loss(latents_sd, target, reduction="mean") / args.batch_size        # batch_size should be 1
 
 
             loss.backward()
@@ -547,7 +425,7 @@ def main():
                 log_steps.append(step)
                 # save current img_tensor
                 # scale and decode the image latents with vae
-                tmp_latents = 1 / vae.config.scaling_factor * latents_vsd.clone().detach()
+                tmp_latents = 1 / vae.config.scaling_factor * latents_sd.clone().detach()
                 if args.save_x0:
                     # Note: In SDS, noise - noise_pred_phi will be zero; In VSD, it may be a little bit different
                     if args.generation_mode == 'sds':
@@ -558,16 +436,10 @@ def main():
                 
 
                 with torch.no_grad():
-                    # if args.half_inference:
-                    #     tmp_latents = tmp_latents.half()
                     image_ = vae.decode(tmp_latents).sample.to(torch.float32)
                     if args.save_x0:
-                        # if args.half_inference:
-                        #     pred_latents = pred_latents.half()
                         image_x0 = vae.decode(pred_latents / vae.config.scaling_factor).sample.to(torch.float32)
                         if args.generation_mode == 'vsd':
-                            # if args.half_inference:
-                            #     pred_latents_phi = pred_latents_phi.half()
                             image_x0_phi = vae_phi.decode(pred_latents_phi / vae.config.scaling_factor).sample.to(torch.float32)
                             image = image_ #torch.cat((image_, image_x0, image_x0_phi), dim=2)
                         else:
@@ -582,8 +454,6 @@ def main():
                 ave_train_loss_values.append(ave_train_loss_value) if step > 0 else None
                 logger.info(f'step: {step}; average loss: {ave_train_loss_value}')
                 update_curve(train_loss_values, 'Train_loss', 'steps', 'Loss', args.store_dir, args.run_id)
-                # update_curve(ave_train_loss_values, 'Ave_Train_loss', 'steps', 'Loss', args.store_dir, args.run_id, log_steps=log_steps[1:])
-                # calculate psnr value and update curve
 
             if first_iteration and device==torch.device('cuda'):
                 global_free, total_gpu = torch.cuda.mem_get_info(0)
@@ -608,10 +478,6 @@ def main():
     else:
         image = get_images(particles, vae, args.rgb_as_latents, use_mlp_particle=args.use_mlp_particle)
     save_image((image/2+0.5).clamp(0, 1), f'{args.store_dir}/generated_image.png')
-    # through vae will get image with less artifacts for image particles
-    # from model_utils import batch_decode_vae
-    # images = batch_decode_vae(latents, vae)
-    # save_image((images/2+0.5).clamp(0, 1), f'{args.store_dir}/final_image_2_{image_name}.png')
 
     if args.generation_mode in ['vsd'] and args.save_phi_model:
         if args.phi_model in ['lora']:

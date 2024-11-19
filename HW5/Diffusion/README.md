@@ -23,4 +23,6 @@ python execute_DDPM_DDIM.py --scheduler_name DDIM
 
 python execute_SDS_VSD.py --generation_mode=sds --store_dir SDS_results
 
+python execute_SDS_VSD.py --generation_mode=sds --store_dir SDS_results --guidance_scale=100
+
 python execute_SDS_VSD.py --generation_mode=vsd --store_dir VSD_results

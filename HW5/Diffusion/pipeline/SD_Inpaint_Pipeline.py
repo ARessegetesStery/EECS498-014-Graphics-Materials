@@ -1216,7 +1216,7 @@ class StableDiffusionInpaintPipeline(
                 f"The unet {self.unet.__class__} should have either 4 or 9 input channels, not {self.unet.config.in_channels}."
             )
 
-        # 9. Prepare extra step kwargs: Logic should ideally just be moved out of the pipeline
+        # 9. Prepare extra step kwargs. TODO: Logic should ideally just be moved out of the pipeline
         extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
 
         # 9.1 Add image embeds for IP-Adapter

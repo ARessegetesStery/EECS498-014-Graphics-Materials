@@ -80,7 +80,7 @@ class StyleGAN2Loss(Loss):
                 training_stats.report('Loss/scores/fake', gen_logits)
                 training_stats.report('Loss/signs/fake', gen_logits.sign())
 
-                # TODO #1: Write the loss function for the Generator (gen_logits is quivalent to D(x))
+                # TODO #1: Write the loss function for the Generator (formula (1)) (gen_logits is equivalent to D(G(z)))
                 loss_Gmain = None
                 ################################################ Solution ################################################
 
@@ -116,7 +116,7 @@ class StyleGAN2Loss(Loss):
                 training_stats.report('Loss/scores/fake', gen_logits)
                 training_stats.report('Loss/signs/fake', gen_logits.sign())
 
-                # TODO #2: Write the Loss function for the second term of the Discriminator (gen_logits is quivalent to D(G(z))) 
+                # TODO #2: Write the Loss function for the second term of the Discriminator (formula (2)) (gen_logits is equivalent to D(G(z))) 
                 loss_Dgen = None
 
                 ################################################ Solution ################################################
@@ -144,7 +144,7 @@ class StyleGAN2Loss(Loss):
 
                 loss_Dreal = 0
                 if do_Dmain:
-                    # TODO #4: Write the Loss function for the first term of the Discriminator Loss (real_logits is quivalent to D(x)) 
+                    # TODO #4: Write the Loss function for the first term of the Discriminator Loss (formula (2)) (real_logits is equivalent to D(x)) 
                     loss_Dreal = None
 
                     ################################################ Solution ################################################
