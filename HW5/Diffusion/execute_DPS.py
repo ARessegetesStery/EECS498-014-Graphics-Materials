@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
 
         # Execute the inference of the model
-        # Note: For DPS, if it needs 1000 steps (at least >300 steps are needed) to generate reconstructions that look similar to the original ones
+        # TODO: Change your num_inference_steps here
         image = pipeline(num_inference_steps = 1000, use_DPS = True, operator = operator, mask = mask, measurement = y_n)     # Note: the default inference step is 1000 for DDPM and 50 for DDIM (No need to input new value inside)
 
 
