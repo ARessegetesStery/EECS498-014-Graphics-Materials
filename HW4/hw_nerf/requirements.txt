@@ -3,7 +3,7 @@ numpy<2.0.0
 opencv-python==4.10.0.84
 pillow
 tomli==2.0.1
-torch==2.4.1
+torch==2.8.0
 torchaudio==2.4.1
 torchvision==0.19.1
 tqdm==4.66.5
